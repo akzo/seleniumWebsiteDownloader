@@ -10,34 +10,38 @@ import re
 
 # URLs
 website = "https://employmentprogram.gov.bc.ca/Transition/SitePages/Home.aspx"
-
-driver = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
-driver.get(website)
+destination = "C:\\Transition\\"
 
 # Getting the webpage name from the url
-url = driver.current_url
-match = re.search(r"\w*\.aspx", url)
-page = match.group(0)
-page = page.replace("aspx", "html")
-print(page)
+def extract_page_name(driver):
+    url = driver.current_url
+    match = re.search(r"\w*\.aspx", url)
+    page = match.group(0)
+    page = page.replace("aspx", "html")
+    return page
 
 # Using hot keys to download the website
-
-ahk.start()
-ahk.ready()
-ahk.execute("Send,^s")
-ahk.execute("WinWaitActive, Save As,,2")
-ahk.execute("WinActivate, Save As")
-save_as = "Send, C:\\Transition\\" + page
-save_as = save_as.encode('utf8')
-print(type(save_as))
-
-
-sent = "Send, C:\\Transition\\" + "Home.html"
-print(type(sent))
-ahk.execute(save_as)
-ahk.execute("Send, {Enter}")
+def site_download(page, destination):
+    ahk.start()
+    ahk.ready()
+    ahk.execute("Send,^s")
+    ahk.execute("WinWaitActive, Save As,,2")
+    ahk.execute("WinActivate, Save As")
+    save_as = "Send, " + destination + page
+    save_as = save_as.encode('utf8')
+    ahk.execute(save_as)
+    ahk.execute("Send, {Enter}")
 
 
+def main():
+    global website, destination
+    driver = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
+    driver.get(website)
+    
+    page = extract_page_name(driver)
+    site_download(page, destination)
 
-#\w*\.aspx
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
+    
