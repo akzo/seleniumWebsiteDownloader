@@ -16,9 +16,10 @@ destination = "C:\\Transition\\"
 # Getting the webpage name from the url to create a corresponding folder
 def extract_page_name(driver):
     url = driver.current_url
-    match = re.search(r"\w*\.aspx", url)
+    match = re.search(r"\w*\/\w*\/\w*.aspx", url)
     page = match.group(0)
     page = page.replace("aspx", "html")
+    page = page.replace("/","-")
     return page
 
 # Using hot keys to download the website
@@ -32,6 +33,7 @@ def site_download(page, destination):
     save_as = "Send, " + destination + page
     save_as = save_as.encode('utf8')
     ahk.execute(save_as)
+    ahk.execute("Send, {Enter}")
     ahk.execute("Send, {Enter}")
 
 #Returns the list of links on the webpage
@@ -47,28 +49,24 @@ def main():
     # Downloading the main webpage
     page = extract_page_name(driver)
     site_download(page, destination)
-
-    
     
     
     # Find each link on the main webpage and download them as well
+    visited_links = []
     links = list_of_links(driver)
     driver2 = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
     for link in links:
-        #pass
         if "javascript" in link.get_attribute("href"):
             continue
+        if "#" in link.get_attribute("href"):
+            continue
+        if link not in visited_links:
+            print link.get_attribute("href")
+            visited_links.append(link)
+            driver2.get(link.get_attribute("href"))
+            page = extract_page_name(driver2)
+            site_download(page, destination)
         
-        print(link.get_attribute("href"))
-        
-        driver2.get(link.get_attribute("href"))
-        
-       
-        page = extract_page_name(driver2)
-       
-        site_download(page, destination)
-        
-        #print link.get_attribute("href")
 
    
 
