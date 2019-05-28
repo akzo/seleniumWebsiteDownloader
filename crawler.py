@@ -16,8 +16,11 @@ destination = "C:\\Transition\\"
 # Getting the webpage name from the url to create a corresponding folder
 def extract_page_name(driver):
     url = driver.current_url
-    match = re.search(r"\w*\/\w*\/\w*.aspx", url)
-    page = match.group(0)
+    match = re.search(r"\w*\/\w*\/\w*.aspx", url.decode('utf-8'), re.I | re.U)
+    try:
+        page = match.group(0)
+    except AttributeError:
+        return
     page = page.replace("aspx", "html")
     page = page.replace("/","-")
     return page
@@ -65,6 +68,8 @@ def main():
             visited_links.append(link)
             driver2.get(link.get_attribute("href"))
             page = extract_page_name(driver2)
+            if page is None:
+                continue
             site_download(page, destination)
         
 
