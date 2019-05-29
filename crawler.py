@@ -16,14 +16,16 @@ destination = "C:\\Transition\\"
 # Getting the webpage name from the url to create a corresponding folder
 def extract_page_name(driver):
     url = driver.current_url
-    match = re.search(r"\w*\/\w*\/\w*.aspx", url.decode('utf-8'), re.I | re.U)
+    match = re.search(r"\w*\/\w*\/\w*.aspx", url)
     try:
         page = match.group(0)
     except AttributeError:
         return
+        
     page = page.replace("aspx", "html")
     page = page.replace("/","-")
     return page
+    
 
 # Using hot keys to download the website
 def site_download(page, destination):
@@ -37,7 +39,7 @@ def site_download(page, destination):
     save_as = save_as.encode('utf8')
     ahk.execute(save_as)
     ahk.execute("Send, {Enter}")
-    ahk.execute("Send, {Enter}")
+    ahk.execute("Send, {Enter}") 
 
 #Returns the list of links on the webpage
 def list_of_links(driver):
@@ -45,33 +47,43 @@ def list_of_links(driver):
     links = list(dict.fromkeys(links))
     return links
 
-def main():
+#Downloads the homepage then goes to every link reachable from hom
+def main(site,depth, processed_links):
+    if depth >= 2:
+        return
+    
     global website, destination
     driver = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
-    driver.get(website)
+    driver.get(site)
     # Downloading the main webpage
     page = extract_page_name(driver)
-    site_download(page, destination)
+    #--site_download(page, destination)cts.html  
     
     
-    # Find each link on the main webpage and download them as well
+    # Find each link on the main webpage and download them as wellgit 
     visited_links = []
     links = list_of_links(driver)
     driver2 = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
     for link in links:
-        if "javascript" in link.get_attribute("href"):
+        url = link.get_attribute("href").split('?')[0]
+        if "javascript" in url:
             continue
-        if "#" in link.get_attribute("href"):
+        if "#" in url:
             continue
-        if link not in visited_links:
-            print link.get_attribute("href")
-            visited_links.append(link)
-            driver2.get(link.get_attribute("href"))
+        if url not in processed_links:
+            print url + str(depth)
+            #visited_links.append(link)
+            processed_links.append(url)
+            driver2.get(url)
             page = extract_page_name(driver2)
             if page is None:
                 continue
-            site_download(page, destination)
-        
+                                
+            #--site_download(page, destination)
+            
+            main(url, depth+1, processed_links)
+
+   
 
    
 
@@ -79,5 +91,6 @@ def main():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    main()
-    
+    processed_links = []
+    main(website, 0, processed_links)
+    print processed_links
