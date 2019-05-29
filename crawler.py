@@ -16,7 +16,7 @@ destination = "C:\\Transition\\"
 # Getting the webpage name from the url to create a corresponding folder
 def extract_page_name(driver):
     url = driver.current_url
-    match = re.search(r"\w*\/\w*\/\w*.aspx", url)
+    match = re.search(r"\w*\/\w*\/\w*.(aspx|html|doc|pdf|xlsx|mp4|amv)", url)
     try:
         page = match.group(0)
     except AttributeError:
@@ -49,6 +49,7 @@ def list_of_links(driver):
 
 #Downloads the homepage then goes to every link reachable from hom
 def main(site,depth, processed_links):
+    print("Here you go" + str(depth))
     if depth >= 2:
         return
     
@@ -57,7 +58,7 @@ def main(site,depth, processed_links):
     driver.get(site)
     # Downloading the main webpage
     page = extract_page_name(driver)
-    #--site_download(page, destination)cts.html  
+    site_download(page, destination)
     
     
     # Find each link on the main webpage and download them as wellgit 
@@ -79,7 +80,7 @@ def main(site,depth, processed_links):
             if page is None:
                 continue
                                 
-            #--site_download(page, destination)
+            site_download(page, destination)
             
             main(url, depth+1, processed_links)
 
