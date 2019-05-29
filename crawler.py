@@ -3,20 +3,22 @@
 #                   May 2019                  #
 ###############################################
 
+#Visit the website and downloads all of the .aspx pages
+
 from selenium import webdriver
 import ahk
 import time
 import re
 
 
-# URLs
+# CONSTANTS TO BE CHANGED FROM PROJECT TO PROJECT
 website = "https://employmentprogram.gov.bc.ca/Transition/SitePages/Home.aspx"
 destination = "C:\\Transition\\"
 
 # Getting the webpage name from the url to create a corresponding folder
 def extract_page_name(driver):
     url = driver.current_url
-    match = re.search(r"\w*\/\w*\/\w*.(aspx|html|doc|pdf|xlsx|mp4|amv)", url)
+    match = re.search(r"\w*\/\w*\/\w*.aspx", url)
     try:
         page = match.group(0)
     except AttributeError:
@@ -47,7 +49,7 @@ def list_of_links(driver):
     links = list(dict.fromkeys(links))
     return links
 
-#Downloads the homepage then goes to every link reachable from hom
+#Downloads the homepage then goes to every link reachable from home
 def main(site,depth, processed_links):
     print("Here you go" + str(depth))
     if depth >= 2:
