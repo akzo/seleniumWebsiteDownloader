@@ -96,6 +96,6 @@ def main(site,depth, processed_links):
 if __name__ == "__main__":
     # execute only if run as a script
     processed_links = []
-    #main(website, 0, processed_links)
-    replace_links(destination)
+    main(website, 0, processed_links)
+    #replace_links(destination)
     print processed_links
