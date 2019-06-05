@@ -52,8 +52,7 @@ def list_of_links(driver):
 
 #Downloads the homepage then goes to every link reachable from home
 def main(site,depth, processed_links):
-    print("Here you go" + str(depth))
-    if depth >= 2:
+    if depth >= 3:
         return
     
     global website, destination
@@ -71,6 +70,10 @@ def main(site,depth, processed_links):
     for link in links:
         url = link.get_attribute("href").split('?')[0]
         if "javascript" in url:
+            continue
+        if "Lists" in url:
+            continue
+        if "_layouts" in url:
             continue
         if "#" in url:
             continue
