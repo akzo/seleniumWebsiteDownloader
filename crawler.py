@@ -73,8 +73,8 @@ def main(site,depth, processed_links):
             continue
         if "Lists" in url:
             continue
-        if "_layouts" in url:
-            continue
+        #if "_layouts" in url:
+            #continue
         if "#" in url:
             continue
         if url not in processed_links:
