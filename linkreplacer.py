@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 # VARIABLES
 destination = "C:\\Transition\\"
-website = "https://employmentprogram.gov.bc.ca/"
+website = "https://employmentprogram.gov.bc.ca/Transition/"  # the part that will be replaced by destination for pdf, mp4 files and etc.
 
 #This is the main func in the script.
 def replace_links(destination):
@@ -30,7 +30,7 @@ def replace_links(destination):
         external_links.append(reverse_eng_url(f, destination))
 
     html(files, external_links)
-    #non_html_files(files)
+    non_html_files(files)
     
 # Returns the external url for each local html file
 def reverse_eng_url(origin_url, destination):
@@ -47,9 +47,9 @@ def html(files, external_links):
             for internal, ext in zip(files, external_links):
                 #print ext
                 for a in soup.find_all("a", href=re.compile(ext)):
-                    print("local is: " + local)
-                    print(a['href'])
-                    print(internal)
+                    #print("local is: " + local)
+                    #print(a['href'])
+                    #print(internal)
                     a['href'] = internal #a[href] is found, internal also exists as a value, but for some reason internal doesn't get assigned to a[href]
                 for a in soup.find_all("a", href=re.compile(ext+"#")):
                     a['href'] = internal
@@ -59,13 +59,21 @@ def html(files, external_links):
 
 # Replace non html external pointing files with internal ones
 def non_html_files(files):
-    # regex to find all non html files https:\/\/employmentprogram\.gov\.bc\.ca\/.+\.pdf|mp4
+    # regex to find all non html files https:\/\/employmentprogram\.gov\.bc\.ca\/.*\.(?:pdf|mp4|docx|pptx)
     for local in files:
         with open(local, "r+") as f:
             contents = f.read()
             soup = BeautifulSoup(contents, "lxml")
-            
-        print local
+            for a in soup.find_all("a", href=re.compile("https:\/\/employmentprogram\.gov\.bc\.ca\/.*\.(?:pdf|mp4|docx|pptx)")):
+                a['href']=a['href'].replace(website, destination).replace("/","\\")
+                print("Here is the non html file: ")
+                print(a['href'])
+        f = open(local, "w")           
+        f.write(str(soup))
+                
+                
+                
+        #print local
     
 
 if __name__ == "__main__":

@@ -77,6 +77,8 @@ def main(site,depth, processed_links):
             #continue
         if "#" in url:
             continue
+        if "https://employmentprogram.gov.bc.ca/Transition" not in url:
+            continue
         if url not in processed_links:
             print url + str(depth)
             #visited_links.append(link)
