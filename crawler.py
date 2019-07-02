@@ -15,8 +15,13 @@ from linkreplacer import *
 # CONSTANTS TO BE CHANGED FROM PROJECT TO PROJECT
 website = "https://employmentprogram.gov.bc.ca/Transition/SitePages/Home.aspx"
 destination = "C:\\Transition\\"
+avoid_urls_with_these_words = ["javascript", "#", "Lists"] #program would not download pages containing this word in the url
+base = "https://employmentprogram.gov.bc.ca/Transition" #the base sublink that should be in each link. This will prevent downloading outside websites
 
-# Getting the webpage name from the url to create a corresponding folder
+#--------------------------------------------------------------------------------------------------------------------#
+# Getting the webpage name from the url to create a corresponding file. This was adjusted for the Transition subsite
+# that's why we extract it as word/word/word.aspx
+#--------------------------------------------------------------------------------------------------------------------#
 def extract_page_name(driver):
     url = driver.current_url
     match = re.search(r"\w*\/\w*\/\w*.aspx", url)
@@ -29,8 +34,9 @@ def extract_page_name(driver):
     page = page.replace("/","-")
     return page
     
-
-# Using hot keys to download the website
+#---------------------------------------------------------------------------------------------------------------------------#
+# Using hot keys to download the website. We are replicating what the user does when downloading the website from the browser
+#---------------------------------------------------------------------------------------------------------------------------#
 def site_download(page, destination):
     ahk.start()
     ahk.ready()
@@ -43,8 +49,9 @@ def site_download(page, destination):
     ahk.execute(save_as)
     ahk.execute("Send, {Enter}")
     ahk.execute("Send, {Enter}") 
-
+#--------------------------------------------#
 #Returns the list of links on the webpage
+#--------------------------------------------#
 def list_of_links(driver):
     links = driver.find_elements_by_xpath("//a[@href]")
     links = list(dict.fromkeys(links))
@@ -52,6 +59,8 @@ def list_of_links(driver):
 
 #Downloads the homepage then goes to every link reachable from home
 def main(site,depth, processed_links):
+    global avoid_urls_with_these_words
+    global base
     if depth >= 3:
         return
     
@@ -63,21 +72,16 @@ def main(site,depth, processed_links):
     site_download(page, destination)
     
     
-    # Find each link on the main webpage and download them as wellgit 
+    # Find each link on the main webpage and download them as well 
     visited_links = []
     links = list_of_links(driver)
     driver2 = webdriver.Chrome('chromedriver.exe') #driver for chrome 74 is attached
     for link in links:
         url = link.get_attribute("href").split('?')[0]
-        if "javascript" in url:
+        
+        if any(word in url for word in avoid_urls_with_these_words):
             continue
-        if "Lists" in url:
-            continue
-        #if "_layouts" in url:
-            #continue
-        if "#" in url:
-            continue
-        if "https://employmentprogram.gov.bc.ca/Transition" not in url:
+        if base not in url:
             continue
         if url not in processed_links:
             print url + str(depth)
@@ -99,7 +103,6 @@ def main(site,depth, processed_links):
     
 
 if __name__ == "__main__":
-    # execute only if run as a script
     processed_links = []
     main(website, 0, processed_links)
     #replace_links(destination)
